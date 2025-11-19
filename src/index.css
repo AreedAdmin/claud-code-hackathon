@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 220 20% 7%;
+    --foreground: 210 40% 98%;
+
+    --card: 220 18% 10%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 220 18% 12%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 188 95% 43%;
+    --primary-foreground: 220 20% 7%;
+
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 217 91% 60%;
+    --accent-foreground: 220 20% 7%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 220 20% 7%;
+
+    --success: 158 64% 52%;
+    --success-foreground: 220 20% 7%;
+
+    --border: 217 33% 20%;
+    --input: 217 33% 20%;
+    --ring: 188 95% 43%;
+
+    --radius: 0.5rem;
+
+    --chart-1: 188 95% 43%;
+    --chart-2: 217 91% 60%;
+    --chart-3: 158 64% 52%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 0 84% 60%;
+
+    --glow-cyan: 188 95% 43%;
+    --glow-blue: 217 91% 60%;
+    --glow-red: 0 84% 60%;
+    
+    --gradient-control: linear-gradient(135deg, hsl(188 95% 43% / 0.1), hsl(217 91% 60% / 0.1));
+    --gradient-danger: linear-gradient(135deg, hsl(0 84% 60% / 0.2), hsl(0 84% 40% / 0.1));
+    --gradient-success: linear-gradient(135deg, hsl(158 64% 52% / 0.2), hsl(158 64% 32% / 0.1));
+    
+    --shadow-glow-cyan: 0 0 20px hsl(188 95% 43% / 0.3);
+    --shadow-glow-blue: 0 0 20px hsl(217 91% 60% / 0.3);
+    --shadow-glow-red: 0 0 20px hsl(0 84% 60% / 0.3);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
