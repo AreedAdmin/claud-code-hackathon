@@ -1,0 +1,55 @@
+{
+    "model_name": "Logistic Regression",
+    "model_type": "LogisticRegression",
+    "training_date": "2025-11-19 19:52:38",
+    "dataset_size": {
+        "train": 5469,
+        "validation": 250,
+        "test": 250,
+        "total": 5000
+    },
+    "class_distribution": {
+        "no_incident": 4341,
+        "incident": 659
+    },
+    "performance_metrics": {
+        "test_accuracy": 0.372,
+        "test_precision": 0.15555555555555556,
+        "test_recall": 0.8484848484848485,
+        "test_f1": 0.26291079812206575,
+        "test_auc": 0.5693338919145371
+    },
+    "validation_metrics": {
+        "val_accuracy": 0.524,
+        "val_precision": 0.10909090909090909,
+        "val_recall": 0.36363636363636365,
+        "val_f1": 0.16783216783216784
+    },
+    "confusion_matrix": {
+        "true_negatives": 65,
+        "false_positives": 152,
+        "false_negatives": 5,
+        "true_positives": 28
+    },
+    "model_parameters": {
+        "C": 1.0,
+        "class_weight": "balanced",
+        "dual": false,
+        "fit_intercept": true,
+        "intercept_scaling": 1,
+        "l1_ratio": null,
+        "max_iter": 1000,
+        "multi_class": "auto",
+        "n_jobs": null,
+        "penalty": "l2",
+        "random_state": 42,
+        "solver": "lbfgs",
+        "tol": 0.0001,
+        "verbose": 0,
+        "warm_start": false
+    },
+    "number_of_features": 89,
+    "top_10_features": [],
+    "safety_rating": "EXCELLENT",
+    "random_state": 42
+}
