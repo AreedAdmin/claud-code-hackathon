@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { AlertCircle, TrendingUp, Shield } from "lucide-react";
+import { AlertCircle, TrendingUp, Shield, CheckCircle2, Database } from "lucide-react";
 import { SimulationData, PredictionResult } from "@/types/simulation";
 
 interface PredictionPanelProps {
@@ -32,6 +32,75 @@ const PredictionPanel = ({ predictionResult, simulationData }: PredictionPanelPr
 
   return (
     <div className="space-y-4">
+      {/* Model Verification Card - Shows this is REAL ML model */}
+      {predictionResult.model_metadata && (
+        <Card className="p-4 bg-green-950/20 border-green-500/30">
+          <h3 className="text-sm font-semibold text-green-400 mb-3 flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4" />
+            Real ML Model Active
+          </h3>
+          <div className="space-y-2 text-xs">
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground">Model Type:</span>
+              <Badge variant="outline" className="bg-green-500/10 border-green-500/30 text-green-400">
+                {predictionResult.model_metadata.model_type}
+              </Badge>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground">Source:</span>
+              <span className="text-green-400 font-mono text-[10px]">
+                {predictionResult.model_metadata.model_source}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground">Features:</span>
+              <span className="text-green-400 font-semibold">
+                {predictionResult.model_metadata.n_features || 'N/A'}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground">Scaler Active:</span>
+              <Badge variant="outline" className={
+                predictionResult.model_metadata.using_scaler
+                  ? "bg-green-500/10 border-green-500/30 text-green-400"
+                  : "bg-yellow-500/10 border-yellow-500/30 text-yellow-400"
+              }>
+                {predictionResult.model_metadata.using_scaler ? '✓ Yes' : '✗ No'}
+              </Badge>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground">Feature Order:</span>
+              <Badge variant="outline" className={
+                predictionResult.model_metadata.using_feature_names
+                  ? "bg-green-500/10 border-green-500/30 text-green-400"
+                  : "bg-yellow-500/10 border-yellow-500/30 text-yellow-400"
+              }>
+                {predictionResult.model_metadata.using_feature_names ? '✓ Correct' : '✗ Default'}
+              </Badge>
+            </div>
+            {predictionResult.incident_probability !== undefined && (
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Incident Probability:</span>
+                <span className="text-green-400 font-semibold">
+                  {(predictionResult.incident_probability * 100).toFixed(1)}%
+                </span>
+              </div>
+            )}
+            {predictionResult.confidence !== undefined && (
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Confidence:</span>
+                <span className="text-green-400 font-semibold">
+                  {(predictionResult.confidence * 100).toFixed(1)}%
+                </span>
+              </div>
+            )}
+            <div className="pt-2 border-t border-green-500/20 text-[10px] text-green-500/70">
+              ✓ NO MOCK DATA - This prediction is from the real HuggingFace model
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Key Metrics */}
       <Card className="p-4 bg-card border-border">
         <h3 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">

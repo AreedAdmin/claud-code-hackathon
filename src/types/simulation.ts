@@ -43,6 +43,8 @@ export interface SimulationData {
 
 export interface PredictionResult {
   incident_occurred: boolean;
+  incident_probability?: number;
+  confidence?: number;
   true_risk_level: number; // 0-3
   avalon_evac_recommendation: boolean;
   avalon_shutdown_recommendation: boolean;
@@ -53,6 +55,17 @@ export interface PredictionResult {
     value: number | string | boolean;
   }[];
   incident_type?: string;
+  // Model verification metadata - confirms this is from real ML model
+  model_metadata?: {
+    model_type: string;
+    model_source: string;
+    model_path?: string;
+    model_url?: string;
+    n_features: number | null;
+    using_scaler: boolean;
+    using_feature_names: boolean;
+    is_real_model: boolean;
+  };
 }
 
 export type RiskProfile = "low" | "moderate" | "high" | "critical";

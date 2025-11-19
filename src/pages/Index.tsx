@@ -18,40 +18,30 @@ const Index = () => {
     setSimulationData(data);
 
     try {
-      // Call the real backend API
+      // Call the REAL backend API - NO MOCK DATA
       const prediction = await getPrediction(data);
       setPredictionResult(prediction);
 
       toast({
-        title: "Prediction Complete",
-        description: "Risk analysis has been generated successfully.",
+        title: "✓ Real Model Prediction Complete",
+        description: `Analysis from trained LogisticRegression model${
+          prediction.model_metadata?.using_scaler && prediction.model_metadata?.using_feature_names
+            ? ' (with scaler & correct feature order)'
+            : ' (WARNING: missing scaler or feature names)'
+        }`,
       });
     } catch (error) {
       console.error("Prediction error:", error);
 
-      // Fallback to mock data if backend is not available
+      // NO FALLBACK - Show error instead
       toast({
-        title: "Backend Unavailable",
-        description: "Using mock data. Please ensure the backend server is running.",
+        title: "Backend Connection Failed",
+        description: `Cannot connect to ML model API. Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
 
-      // Mock prediction result as fallback
-      const mockPrediction: PredictionResult = {
-        incident_occurred: Math.random() > 0.5,
-        true_risk_level: Math.floor(Math.random() * 4),
-        avalon_evac_recommendation: Math.random() > 0.7,
-        avalon_shutdown_recommendation: Math.random() > 0.6,
-        human_override: Math.random() > 0.8,
-        top_contributors: [
-          { feature: "core_temp_c", impact: 0.92, value: data.core_temp_c },
-          { feature: "coolant_pressure_bar", impact: 0.87, value: data.coolant_pressure_bar },
-          { feature: "maintenance_score", impact: 0.73, value: data.maintenance_score },
-        ],
-        incident_type: data.core_temp_c > 320 ? "Core Overheat" : "Coolant System Failure",
-      };
-
-      setPredictionResult(mockPrediction);
+      // Clear any previous results to make it clear the prediction failed
+      setPredictionResult(null);
     } finally {
       setIsSimulating(false);
     }

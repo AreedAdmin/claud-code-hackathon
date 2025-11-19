@@ -15,10 +15,14 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)  # Enable CORS for frontend communication
 
-# HuggingFace URLs for model components
+# Model file paths - use LOCAL files for complete model with scaler and feature names
+MODEL_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'model')
+MODEL_PATH = os.path.join(MODEL_DIR, 'best_model_logistic_regression.pkl')
+SCALER_PATH = os.path.join(MODEL_DIR, 'scaler.pkl')
+FEATURE_NAMES_PATH = os.path.join(MODEL_DIR, 'feature_names.pkl')
+
+# HuggingFace URLs as backup (though they don't have scaler and feature_names)
 MODEL_URL = "https://huggingface.co/datasets/Fares-Gharbi/claude_hack_pickle/resolve/main/best_model_logistic_regression.pkl"
-SCALER_URL = "https://huggingface.co/datasets/Fares-Gharbi/claude_hack_pickle/resolve/main/scaler.pkl"
-FEATURE_NAMES_URL = "https://huggingface.co/datasets/Fares-Gharbi/claude_hack_pickle/resolve/main/feature_names.pkl"
 
 # Global variables to cache the model components
 cached_model = None
@@ -26,53 +30,50 @@ cached_scaler = None
 cached_feature_names = None
 
 
-def load_from_huggingface(url, component_name):
-    """Load a pickle/joblib file from HuggingFace"""
+def load_from_local(file_path, component_name):
+    """Load a pickle/joblib file from local filesystem"""
     try:
-        print(f"Loading {component_name} from HuggingFace: {url}")
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
-
-        # Try loading with joblib first (for sklearn models), fall back to pickle
-        try:
-            obj = joblib.load(BytesIO(response.content))
-            print(f"{component_name} loaded successfully with joblib")
-        except Exception as joblib_error:
-            print(f"Joblib failed, trying pickle: {joblib_error}")
-            obj = pickle.load(BytesIO(response.content))
-            print(f"{component_name} loaded successfully with pickle")
-
+        print(f"Loading {component_name} from local file: {file_path}")
+        with open(file_path, 'rb') as f:
+            # Try loading with joblib first (for sklearn models), fall back to pickle
+            try:
+                obj = joblib.load(f)
+                print(f"{component_name} loaded successfully with joblib")
+            except Exception:
+                f.seek(0)  # Reset file pointer
+                obj = pickle.load(f)
+                print(f"{component_name} loaded successfully with pickle")
         return obj
     except Exception as e:
-        print(f"Error loading {component_name} from HuggingFace: {str(e)}")
+        print(f"Error loading {component_name} from local file: {str(e)}")
         raise
 
 
 def load_model_components():
-    """Load the model, scaler, and feature names from HuggingFace"""
+    """Load the model, scaler, and feature names from LOCAL files"""
     global cached_model, cached_scaler, cached_feature_names
 
     if cached_model is not None:
         return cached_model, cached_scaler, cached_feature_names
 
     try:
-        # Load model from HuggingFace
-        cached_model = load_from_huggingface(MODEL_URL, "Model")
+        # Load model from local file
+        cached_model = load_from_local(MODEL_PATH, "Model")
 
-        # Try to load scaler from HuggingFace
+        # Load scaler from local file
         try:
-            cached_scaler = load_from_huggingface(SCALER_URL, "Scaler")
+            cached_scaler = load_from_local(SCALER_PATH, "Scaler")
         except Exception as e:
-            print(f"Warning: Could not load scaler from HuggingFace: {str(e)}")
+            print(f"Warning: Could not load scaler: {str(e)}")
             print("Proceeding without scaler (features will not be scaled)")
             cached_scaler = None
 
-        # Try to load feature names from HuggingFace
+        # Load feature names from local file
         try:
-            cached_feature_names = load_from_huggingface(FEATURE_NAMES_URL, "Feature names")
+            cached_feature_names = load_from_local(FEATURE_NAMES_PATH, "Feature names")
             print(f"Feature names loaded successfully ({len(cached_feature_names)} features)")
         except Exception as e:
-            print(f"Warning: Could not load feature names from HuggingFace: {str(e)}")
+            print(f"Warning: Could not load feature names: {str(e)}")
             print("Will use default feature ordering")
             cached_feature_names = None
 
@@ -316,7 +317,7 @@ def predict():
         elif incident_predicted:
             incident_type = 'General Safety Concern'
 
-        # Prepare response
+        # Prepare response with model metadata for verification
         response = {
             'incident_occurred': incident_predicted,
             'incident_probability': round(incident_probability, 3),
@@ -326,7 +327,17 @@ def predict():
             'avalon_shutdown_recommendation': data.get('avalon_shutdown_recommendation', False),
             'human_override': data.get('human_override', False),
             'top_contributors': calculate_feature_importance(data, prediction),
-            'incident_type': incident_type
+            'incident_type': incident_type,
+            # Model verification metadata
+            'model_metadata': {
+                'model_type': type(model).__name__,
+                'model_source': 'Local: /model/ directory (trained on avalon_nuclear.csv)',
+                'model_path': MODEL_PATH,
+                'n_features': model.n_features_in_ if hasattr(model, 'n_features_in_') else None,
+                'using_scaler': scaler is not None,
+                'using_feature_names': feature_names is not None,
+                'is_real_model': True  # Flag to confirm this is NOT mock data
+            }
         }
 
         return jsonify(response), 200
